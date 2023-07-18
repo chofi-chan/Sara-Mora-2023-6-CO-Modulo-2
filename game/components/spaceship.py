@@ -1,6 +1,10 @@
 import pygame
+import random
 from pygame.locals import *
 from game.utils.constants import SPACESHIP, SCREEN_WIDTH, SCREEN_HEIGHT
+from game.components.bullets.bullet import Bullet
+from game.components.bullets.bullet_manager import BulletManager
+from game.utils.constants import SPACESHIP, SCREEN_WIDTH, SCREEN_HEIGHT, SPACESHIP_TYPE
 
 class Spaceship:
     def __init__(self):
@@ -11,8 +15,11 @@ class Spaceship:
         self.is_w_pressed = False
         self.is_a_pressed = False
         self.is_d_pressed = False
+        self.shooting_time = random.randint(40, 60)
+        self.type = SPACESHIP_TYPE
+        self.shots_fired = 0  # Contador de balas disparadas
         
-    def update(self, user_input):
+    def update(self, user_input, game):
         self.is_w_pressed = user_input[pygame.K_w]
         self.is_a_pressed = user_input[pygame.K_a]
         self.is_d_pressed = user_input[pygame.K_d]
@@ -31,6 +38,8 @@ class Spaceship:
             self.move_up()
         elif user_input[pygame.K_s]:
             self.move_down()
+        elif user_input[pygame.K_z]:
+            self.fire_bullet(game.bullet_manager)
             
     def move_left(self):
         print("left")
@@ -67,9 +76,20 @@ class Spaceship:
         if self.rect.top > SCREEN_HEIGHT // 2 and self.rect.right < SCREEN_WIDTH:
             self.rect.y -= 10
             self.rect.x += 10
-            
+    
+
+              
+    def fire_bullet(self, bullet_manager):
+        if self.shots_fired < 3:  # Disparar solo si el contador es menor que 3
+            bullet = Bullet(self.type, self.rect.center)
+            bullet_manager.add_bullet(bullet)
+            self.shots_fired += 1  # Incrementar el contador de balas disparadas
+            print(len(bullet_manager.spaceship_bullets)) 
+        else:
+            # Restablecer el contador de balas disparadas después de disparar tres balas
+            self.shots_fired = 0
+              
+
+      
     def draw(self, screen):
         screen.blit(self.image, (self.rect.x, self.rect.y))
-  
-
-       
